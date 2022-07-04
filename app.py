@@ -24,11 +24,19 @@ if uploaded_image is not None:
         response = requests.post("http://127.0.0.1:5000/predict",
                                 files={'image_bytes': image_bytes})
     
-    st.success("Classification success!")
-    
-    result = json.loads(response.text)
-    st.table(pd.DataFrame({
-        'Class ID'   : [result['class_id']],
-        'Class Name' : [result['class_name']],
-        'Probability': [f"{100*result['probability']:.2f}%"],
-    }))
+    if response.ok is True:
+        st.success("Classification success!")
+        result = json.loads(response.text)
+        st.table(pd.DataFrame({
+            'Class ID'   : [result['class_id']],
+            'Class Name' : [result['class_name']],
+            'Probability': [f"{100*result['probability']:.2f}%"],
+        }))
+        db_response = requests.post("http://127.0.0.1:5001/add",
+                                    json=result)
+        if db_response.ok is True:
+            st.success("The prediction result has been saved to the database!")
+        else:
+            st.error(f"Can't save the prediction result to the database! Error code: {db_response.status_code}")
+    else:
+        st.error(f"Classification fails! Error code: {response.status_code}")

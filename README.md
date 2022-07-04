@@ -17,6 +17,7 @@ A script to test `cnn-api.py`.
 ## Tools
 - Pytorch
 - Flask
+- sqlite3
 - PIL
 
 ## How To Use
